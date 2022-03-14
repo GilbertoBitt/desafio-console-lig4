@@ -2,11 +2,8 @@
 {
     public enum MoveDirection
     {
-        DiagonalRight,
-        DiagonalLeft,
-        HorizontalLeft,
-        HorizontalRight,
-        VerticalLeft,
-        VerticalRight,
+        Diagonal,
+        Horizontal,
+        Vertical,
     }
 }

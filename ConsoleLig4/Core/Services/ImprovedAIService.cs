@@ -58,6 +58,13 @@ namespace ConsoleLig4.Core.Services
             }
             // SET PLAYER MOVE
             NextMove = GetRandomWeightedMove().X+1;
+            Console.Write("\n");
+            foreach (Move move in _availableMoves)
+            {
+                Console.Write($"x:{move.X} | y:{move.Y} | weight:{move.Weight} \n");
+            }
+            Console.Write("\n");
+            // NextMove = new Random().Next(1,6);
             AiProcessing.SetResult();
         }
 
@@ -69,8 +76,10 @@ namespace ConsoleLig4.Core.Services
             for (int i = 0; i < available.Length; i++)
             {
                 randomValue -= available[i].Weight;
-                if (!(randomValue < 0.0)) continue;
-                return available[i];
+                if (randomValue < 0.0)
+                {
+                    return available[i];
+                }
             }
             return available.FirstOrDefault();
         }
@@ -79,7 +88,8 @@ namespace ConsoleLig4.Core.Services
         {
             for (int i = 0; i < 5; i++)
             {
-                if(_board[xPos, i] == 0)
+                int currentBoardValue = _board[xPos, i];
+                if(currentBoardValue == 0)
                 {
                     return i;
                 }
@@ -97,126 +107,280 @@ namespace ConsoleLig4.Core.Services
         /// <returns></returns>
         private double CalculateMovesWeight(Move move)
         {
-            double weight = Constant.DEFAULT_WEIGHT;
-            if (move.X == 0) return weight;
+            if(move.Y >= _board.GetLength(1) && _board[move.X, move.Y] != 0) return 1;
+            int weight = Constant.DEFAULT_WEIGHT;
             foreach (MoveDirection direction in System.Enum.GetValues(typeof(MoveDirection)))
             {
-                int posX;
-                int posY;
-                int playerInRow;
-                int enemyInRow;
                 switch (direction)
                 {
-                    case MoveDirection.DiagonalRight:
-                        ResetInitialValues(move, out posX, out posY, out playerInRow, out enemyInRow);
+                    case MoveDirection.Horizontal:
+                        int comboCounter = 0;
+                        int lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
+                        {
+                            throw new Exception("Invalid Move");
+                        }
                         for (int i = 1; i < 3; i++)
                         {
-                            posX += i;
-                            if(posX <= 0 || posX >= _board.GetLength(0)) continue;
-                            for (int j = 1; j < 3; j++)
+                            int xPos = move.X + i;
+                            if(xPos >= _board.GetLength(0)) break;
+                            int currentValue = _board[xPos, move.Y];
+                            if (currentValue != 1)
                             {
-                                posY -= j;
-                                if(posY <= 0 || posY >= _board.GetLength(1)) continue;
-                                int currentBoard = _board[posX, posY];
-                                PlayerInRow(currentBoard, ref playerInRow, ref weight, ref enemyInRow);
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
+                            }
+                        }
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
+                        {
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 3; i++)
+                        {
+                            int xPos = move.X - i;
+                            if(xPos < 0) break;
+                            int currentValue = _board[xPos, move.Y];
+                            if (currentValue != 1)
+                            {
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
                             }
                         }
                         break;
-                    case MoveDirection.DiagonalLeft:
-                        ResetInitialValues(move, out posX, out posY, out playerInRow, out enemyInRow);
-                        for (int i = 1; i < 3; i++)
+                    case MoveDirection.Vertical:
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
                         {
-                            posX -= i;
-                            if(posX <= 0 || posX >= _board.GetLength(0)) continue;
-                            for (int j = 1; j < 3; j++)
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 4; i++)
+                        {
+                            int yPos = move.Y + i;
+                            if(yPos >= _board.GetLength(1)) break;
+                            int currentValue = _board[move.X, yPos];
+                            if (currentValue != 1)
                             {
-                                posY -= j;
-                                if(posY <= 0 || posY >= _board.GetLength(1)) continue;
-                                int currentBoard = _board[posX, posY];
-                                PlayerInRow(currentBoard, ref playerInRow, ref weight, ref enemyInRow);
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
+                            }
+                        }
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        
+                        if (lastValue != 0)
+                        {
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 4; i++)
+                        {
+                            int yPos = move.Y - i;
+                            if(yPos < 0) break;
+                            int currentValue = _board[move.X, yPos];
+                            if (currentValue != 1)
+                            {
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
                             }
                         }
                         break;
-                    case MoveDirection.HorizontalRight:
-                        ResetInitialValues(move, out posX, out posY, out playerInRow, out enemyInRow);
-                        for (int i = 1; i < 3; i++)
+                    case MoveDirection.Diagonal:
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
                         {
-                            posX += i;
-                            if(posX <= 0 || posX >= _board.GetLength(0)) continue;
-                            if(posY <= 0 || posY >= _board.GetLength(1)) continue;
-                            int currentBoard = _board[posX, posY];
-                            PlayerInRow(currentBoard, ref playerInRow, ref weight, ref enemyInRow);
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 4; i++)
+                        {
+                            int yPos = move.Y + i;
+                            int xPos = move.X + i;
+                            if(xPos >= _board.GetLength(0)) break;
+                            if(yPos >= _board.GetLength(1)) break;
+                            int currentValue = _board[xPos, yPos];
+                            if (currentValue != 1)
+                            {
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
+                            }
+                        }
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
+                        {
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 4; i++)
+                        {
+                            int yPos = move.Y - i;
+                            int xPos = move.X - i;
+                            if(xPos < 0) break;
+                            if(yPos < 0) break;
+                            int currentValue = _board[xPos, yPos];
+                            if (currentValue != 1)
+                            {
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
+                            }
+                        }
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
+                        {
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 4; i++)
+                        {
+                            int yPos = move.Y - i;
+                            int xPos = move.X + i;
+                            if(xPos >= _board.GetLength(0)) break;
+                            if(yPos < 0) break;
+                            int currentValue = _board[xPos, yPos];
+                            if (currentValue != 1)
+                            {
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
+                            }
+                        }
+                        comboCounter = 0;
+                        lastValue = _board[move.X, move.Y];
+                        if (lastValue != 0)
+                        {
+                            throw new Exception("Invalid Move");
+                        }
+                        for (int i = 1; i < 4; i++)
+                        {
+                            int yPos = move.Y + i;
+                            int xPos = move.X - i;
+                            if(xPos < 0) break;
+                            if(yPos >= _board.GetLength(1)) break;
+                            int currentValue = _board[xPos, yPos];
+                            if (currentValue != 1)
+                            {
+                                break;
+                            }
+                            if (lastValue == 0 || currentValue == lastValue)
+                            {
+                                if (currentValue == lastValue)
+                                {
+                                    comboCounter++;
+                                    if (comboCounter >= 2)
+                                    {
+                                        weight += Constant.DEFAULT_WEIGHT * comboCounter;
+                                    }
+                                }
+                                lastValue = currentValue;
+                                weight += Constant.DEFAULT_WEIGHT;
+                            } else {
+                                break;
+                            }
                         }
                         break;
-                    case MoveDirection.HorizontalLeft:
-                        ResetInitialValues(move, out posX, out posY, out playerInRow, out enemyInRow);
-                        for (int i = 1; i < 3; i++)
-                        {
-                            posX -= i;
-                            if(posX <= 0 || posX >= _board.GetLength(0)) continue;
-                            if(posY <= 0 || posY >= _board.GetLength(1)) continue;
-                            int currentBoard = _board[posX, posY];
-                            PlayerInRow(currentBoard, ref playerInRow, ref weight, ref enemyInRow);
-                        }
-                        break;
-                    case MoveDirection.VerticalRight:
-                        ResetInitialValues(move, out posX, out posY, out playerInRow, out enemyInRow);
-                        for (int i = 1; i < 3; i++)
-                        {
-                            posY += i;
-                            if(posX <= 0 || posX >= _board.GetLength(0)) continue;
-                            if(posY <= 0 || posY >= _board.GetLength(1)) continue;
-                            int currentBoard = _board[posX, posY];
-                            PlayerInRow(currentBoard, ref playerInRow, ref weight, ref enemyInRow);
-                        }
-                        break;
-                    case MoveDirection.VerticalLeft:
-                        ResetInitialValues(move, out posX, out posY, out playerInRow, out enemyInRow);
-                        for (int i = 1; i < 3; i++)
-                        {
-                            posY -= i;
-                            if(posX <= 0 || posX >= _board.GetLength(0)) continue;
-                            if(posY <= 0 || posY >= _board.GetLength(1)) continue;
-                            int currentBoard = _board[posX, posY];
-                            PlayerInRow(currentBoard, ref playerInRow, ref weight, ref enemyInRow);
-                        }
+                    default:
                         break;
                 }
             }
             return weight;
-        }
-
-        private static void ResetInitialValues(Move move, out int posX, out int posY, out int playerInRow, out int enemyInRow)
-        {
-            posX = move.X;
-            posY = move.Y;
-            playerInRow = 0;
-            enemyInRow = 0;
-        }
-
-        private static void PlayerInRow(int currentBoard, ref int playerInRow, ref double weight, ref int enemyInRow)
-        {
-            switch (currentBoard)
-            {
-                case 1:
-                    playerInRow++;
-                    weight += Constant.DEFAULT_WEIGHT * playerInRow;
-                    if (playerInRow >= 3)
-                    {
-                        weight = Constant.DEFAULT_WEIGHT * 3;
-                    }
-                    enemyInRow = 0;
-                    break;
-                case 2:
-                    enemyInRow++;
-                    weight = Constant.DEFAULT_WEIGHT;
-                    if (enemyInRow >= 3)
-                    {
-                        weight = Constant.DEFAULT_WEIGHT * 3;
-                    }
-                    playerInRow = 0;
-                    break;
-            }
         }
     }
 }
