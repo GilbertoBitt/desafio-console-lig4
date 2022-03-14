@@ -102,11 +102,14 @@ namespace ConsoleLig4.Core.Services
         /// This can easily be improve with a ai framework so we can use tree analysis and learn with players..
         /// also because we use dynamic board we can easily change the value to win to a constant so the system can
         /// change and improve based on it.
+        /// It will be good to add ways to draw instead of just win for ai or player.
+        /// 
         /// </summary>
         /// <param name="move"></param>
         /// <returns></returns>
         private double CalculateMovesWeight(Move move)
         {
+            //add this line to avoid crash when Player 2 (AI) wins and stuck on thinking.
             if(move.Y >= _board.GetLength(1) && _board[move.X, move.Y] != 0) return 1;
             int weight = Constant.DEFAULT_WEIGHT;
             foreach (MoveDirection direction in System.Enum.GetValues(typeof(MoveDirection)))
