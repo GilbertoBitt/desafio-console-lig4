@@ -123,6 +123,11 @@ namespace ConsoleLig4.Core.Services
             }
         }
 
+        
+        /// <summary>
+        /// Can't we use a dynamic system to detect if and who win and also we need to allow draw games.
+        /// </summary>
+        /// <returns></returns>
         private int TestForVictory()
         {
             for (int column = 0; column < Configuration.BoardSize - 3; column++)

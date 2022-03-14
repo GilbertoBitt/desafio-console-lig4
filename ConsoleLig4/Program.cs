@@ -12,7 +12,8 @@ namespace ConsoleLig4
         static async Task Main(string[] args)
         {
             IServiceCollection services = new ServiceCollection();
-            _ = services.AddSingleton<IAIService, AIService>();
+            //change to use ImprovedAiService
+            _ = services.AddSingleton<IAIService, ImprovedAiService>();
             _ = services.AddTransient<IGameService, GameService>();
             _ = services.AddSingleton<IInputService, InputService>();
             _ = services.AddSingleton<IPrintService, PrintService>();
